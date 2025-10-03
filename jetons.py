@@ -1,18 +1,28 @@
+Couleurs: tuple = (
+    "Rouge",
+    "Jaune",
+    "Bleu",
+    "Orange",
+    "Vert",
+    "Gris",
+    "Marron"
+)
+
 class Jeton:
-    def __init__(self, color: str, x: int, y: int) -> None:
-        self.color = color
+    def __init__(self, couleur: str, x: int, y: int) -> None:
+        self.couleur = couleur
         self.x = x
         self.y = y
         
-        self.cachee = False
-        self.capture = False        
+        self.est_cache = False
+        self.est_capture = False        
 
     def retourner(self) -> None:
-        self.cachee = True
+        self.est_cache = True
 
     def capturer(self) -> None:
-        """ Ne devrait être appeller que si self.cachee est True """
-        self.capture = True
+        """ Ne devrait être appeller que si self.est_cachee est True """
+        self.est_capture = True
 
 
 class Ratelier:
@@ -23,13 +33,29 @@ class Ratelier:
     def est_complet(self) -> bool:
         return len(self.jetons) == self.taille_max
 
-    def triplette(self) -> str:
+    def est_vide(self) -> bool:
+        return len(self.jetons) == 0
+
+    def triplette(self) -> bool:
         """
-        Si une triplette est formée, renvoie sa couleur,
-        None sinon.
+        Renvoie True si une triplette est formée et la retire des jetons du ratelier, False sinon
         """
         ...
 
-    def est_vide(): ...
-    
-    def ajouter_jeton(self, jeton: Jeton): ...
+    def ajouter_jeton(self, jeton: Jeton):
+        if self.est_complet():
+            ...
+        
+        self.jetons.append(jeton.couleur)
+
+
+class Grille:
+    def __init__(self) -> None:
+        pass
+
+    def get_voisins(self, jeton: Jeton) -> list:
+        """
+        Renvoie la liste des voisins d'un jeton si celui si est présent. Liste vide sinon. 
+        """
+        ...
+        
