@@ -1,2 +1,2 @@
 import fltk
-#orienté obj
+#orienté objet
