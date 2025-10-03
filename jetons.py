@@ -14,11 +14,11 @@ class Jeton:
         self.x = x
         self.y = y
         
-        self.est_cache = False
+        self.est_cache = True
         self.est_capture = False        
 
     def retourner(self) -> None:
-        self.est_cache = True
+        self.est_cache = False
 
     def capturer(self) -> None:
         """ Ne devrait être appeller que si self.est_cachee est True """
@@ -62,14 +62,29 @@ class Ratelier:
 
 class Grille:
     def __init__(self) -> None:
-        pass
+        self.grille = self.generer_grille()
 
-    def get_voisins(self, jeton: Jeton) -> list:
+
+    def generer_grille(self) -> list: ...
+
+    def get_voisins(self, cible: Jeton) -> list:
         """
         Renvoie la liste des voisins d'un jeton si celui si est présent. Liste vide sinon. 
         """
-        ...
+        voisins = []
         
+
+
+
+
+
+
+
+
+
+
+
+
 """
 Tests (peut être suppr)
 
