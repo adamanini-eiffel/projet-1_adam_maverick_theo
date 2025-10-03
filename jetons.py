@@ -40,13 +40,24 @@ class Ratelier:
         """
         Renvoie True si une triplette est formée et la retire des jetons du ratelier, False sinon
         """
-        ...
+        for i, jeton in enumerate(self.jetons):
+            count = 0
 
-    def ajouter_jeton(self, jeton: Jeton):
+            for jeton2 in self.jetons[i:]:
+                if jeton.couleur == jeton2.couleur:
+                    count += 1
+
+            if count == 3:
+                return True
+
+        return False
+                
+
+    def ajouter_jeton(self, jeton: Jeton) -> None:
         if self.est_complet():
             ...
         
-        self.jetons.append(jeton.couleur)
+        self.jetons.append(jeton)
 
 
 class Grille:
@@ -59,3 +70,29 @@ class Grille:
         """
         ...
         
+"""
+Tests (peut être suppr)
+
+
+ratelier = Ratelier()
+for _ in range(5): ratelier.ajouter_jeton(Jeton("Jaune", 0, 0))
+assert ratelier.triplette()
+
+ratelier = Ratelier()
+for _ in range(2): ratelier.ajouter_jeton(Jeton("Jaune", 0, 0))
+for _ in range(3): ratelier.ajouter_jeton(Jeton("Rouge", 0, 0))
+assert ratelier.triplette()
+
+ratelier = Ratelier()
+for _ in range(2): ratelier.ajouter_jeton(Jeton("Jaune", 0, 0))
+for _ in range(2): ratelier.ajouter_jeton(Jeton("Rouge", 0, 0))
+ratelier.ajouter_jeton(Jeton("Vert", 0, 0))
+assert ratelier.triplette() == False
+
+ratelier = Ratelier()
+for i in Couleurs:
+    if not ratelier.est_complet:
+        ratelier.ajouter_jeton(Jeton(i), 0, 0)
+assert ratelier.triplette() == False
+
+"""
