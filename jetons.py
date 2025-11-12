@@ -4,6 +4,50 @@ from typing import Tuple, Optional, List, Set
 
 Couleurs: tuple = ("Rouge", "Jaune", "Bleu", "Orange", "Vert", "Gris", "Marron")
 
+# utilitaires
+
+def distance(a: Jeton, b: Jeton) -> float:
+    """
+    Renvoie la distance entre deux jetons
+    """
+    if a is None or b is None:
+        return -1
+    return sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+
+def _1Dto2DCoords(coord: int, largeur: int = 8, hauteur: int = 10) -> Tuple[int, int]:
+    """
+    Renvoie un couple (x, y) correspondant aux coordonées d'un point dans une grille de l * h.
+    coord correspond à la coordonée sur une table d'une dimension (utilisé dans la classe Grille).
+    Le tuple (-1, -1) est renvoyé si la coordonée n'appartient pas à la table (coord > l*h).
+    Fonction réciproque de _2Dto1DCoords.
+    """
+    if (coord < 0 or coord >= largeur * hauteur):
+        return (-1, -1)
+    
+    x = coord % largeur
+    y = coord // largeur
+    return (x, y)
+    
+def _2Dto1DCoords(x: int, y: int, largeur: int = 8, hauteur: int = 10) -> int:
+    """
+    Renvoie la coordonée (une dimention) correspondant au point de coordonée (x, y) dans une table l * h.
+    la coordonée -1 est renvoyé si la coordonée n'appartient pas à la table.
+    Fonction réciproque de _1Dto2DCoords.
+    """
+    if (x < 0 or y < 0 or x >= largeur or y >=hauteur):
+        return -1
+    
+    return y * largeur + x
+
+def _2Dto1DCoordsTuple(coords: tuple[int, int], largeur: int = 8, hauteur: int = 10) -> int:
+    """
+    Pareil que _2Dto1DCoords, coords est un tuple de deux entiers qui représente une coordonée sur la table.
+    """
+    return _2Dto1DCoords(coords[0], coords[1], largeur, hauteur)
+
+
+
+# classes
 
 class Jeton:
     def __init__(self, couleur: str, x: int, y: int) -> None:
@@ -13,6 +57,10 @@ class Jeton:
         self.est_cache = True
         self.est_capture = False
 
+ 
+    def get_couleur(self) -> str:
+        return self.couleur
+
     def retourner(self) -> None:
         self.est_cache = False
 
@@ -20,17 +68,24 @@ class Jeton:
         """Ne devrait être appelé que si self.est_cache est True"""
         self.est_capture = True
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.couleur
 
 
-def distance(a: Jeton, b: Jeton) -> float:
+class JetonNul:
     """
-    Renvoie la distance entre deux jetons
+    Représente un espace vide (capturé) dans la grille, pas un espace neutralisé (cases None / noires).
+    Pas besoin de stoker des variables autres que la couleure. Une seule instance peut être dupliqué
+    au besoin (celle juste en dessous)
     """
-    if a is None or b is None:
-        return -1
-    return sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+    def __init__(self) -> None:
+        self.couleur = "BLANC"
+
+    def __str__(self) -> str:
+        return self.couleur
+    
+# jeton constant à dupliquer
+JETON_NUL = JetonNul()
 
 
 class Ratelier:
@@ -46,50 +101,55 @@ class Ratelier:
 
     def triplette(self) -> bool:
         """
-        Renvoie True si une triplette est formée et la retire des jetons du râtelier, False sinon
+        Renvoie True si une triplette est formée et la retire des jetons du râtelier, False sinon.
+        Devrait être appellé à chaque mise à jour du râtelier.
         """
-        for i, jeton in enumerate(self.jetons):
-            count = 0
-            for jeton2 in self.jetons[i:]:
-                if jeton.couleur == jeton2.couleur:
-                    count += 1
+        occurences_couleures: dict = {}
+        for jeton in self.jetons:
+            if (not jeton.couleur in occurences_couleures):
+                occurences_couleures[jeton.couleur] = 0
+            
+            occurences_couleures[jeton.couleur] += 1
 
-            if count == 3:
-                # Remove the triplette
-                to_remove = []
-                for j in self.jetons[:]:
-                    if j.couleur == jeton.couleur and len(to_remove) < 3:
-                        to_remove.append(j)
+        for couleur, occurences in occurences_couleures.items():
+            if occurences < 3:
+                continue
 
-                for j in to_remove:
+            enlevee = 0
+            for j in self.jetons[:]:        # copie pour éviter d'itérer sur une liste modifiée
+                if j.couleur == couleur and enlevee < 3:
                     self.jetons.remove(j)
-                return True
+                    enlevee += 1
+
+            return True
         return False
+
 
     def ajouter_jeton(self, jeton: Jeton) -> None:
         if not self.est_complet():
             self.jetons.append(jeton)
 
 
+
+
 class Grille:
     def __init__(self, largeur: int, hauteur: int, taux_neutralise: float = 0.1) -> None:
         self.largeur = largeur
         self.hauteur = hauteur
-        self.grille: List[Optional[Jeton]] = self.generer_grille(taux_neutralise)
+        self.grille: List[Optional[Jeton]] = self.generer_grille(taux_neutralise, essais_max = 100)
 
-    def generer_grille(self, taux_neutralise: float) -> List[Optional[Jeton]]:
+    def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
         attempts = 0
-        while attempts < 100:
+        grille = []
+        while attempts < essais_max:
             grille = [None] * (self.largeur * self.hauteur)
 
             for cellule in range(len(grille)):
                 if random() <= taux_neutralise:
                     continue
-                grille[cellule] = Jeton(
-                    couleur=choice(Couleurs),
-                    x=(cellule % self.largeur),
-                    y=(cellule // self.largeur)
-                )
+
+                x, y = _1Dto2DCoords(cellule, self.largeur, self.hauteur)
+                grille[cellule] = Jeton(couleur=choice(Couleurs), x=x, y=y)
 
             grille = self.corrige_enclaves_simples(grille)
 
@@ -98,7 +158,7 @@ class Grille:
                 return grille
             attempts += 1
 
-        print("Impossible de générer une grille sans enclave large après 100 tentatives")
+        print(f"Impossible de générer une grille sans enclave large après {essais_max} tentatives")
         return grille
 
     def trouver_enclave_simple(self, grille: List[Optional[Jeton]]) -> Tuple[Tuple[int, int], ...]:
@@ -109,9 +169,9 @@ class Grille:
         enclaves = []
 
         for jeton in grille:
-            if jeton is None:
+            if not isinstance(jeton, Jeton):
                 continue
-            voisins = self.get_voisins(grille, jeton)
+            voisins = self.get_voisins(jeton, grille)
             if voisins == [None] * 4:
                 enclaves.append((jeton.x, jeton.y))
 
@@ -123,18 +183,18 @@ class Grille:
             return grille
 
         print(f"correction d'enclaves simples: {enclaves}")
-        for jeton_x, jeton_y in enclaves:
-            index = jeton_x + self.largeur * jeton_y
+        for jetons_coords in enclaves:
+            index = _2Dto1DCoordsTuple(jetons_coords, self.largeur, self.hauteur)
             jeton = grille[index]
-            if jeton is None:
+
+            if not isinstance(jeton, Jeton):
                 continue
 
             voisins_coords = self.get_voisins_coords(jeton)
             if voisins_coords:
                 remplace_x, remplace_y = choice(voisins_coords)
-                grille[remplace_x + self.largeur * remplace_y] = Jeton(
-                    choice(Couleurs), remplace_x, remplace_y
-                )
+                index_remplace = _2Dto1DCoords(remplace_x, remplace_y, self.hauteur, self.largeur)
+                grille[index_remplace] = Jeton(choice(Couleurs), remplace_x, remplace_y)
 
         return grille
 
@@ -154,23 +214,13 @@ class Grille:
 
         return voisins
 
-    def get_voisins(self, grille: List[Optional[Jeton]], jeton: Jeton) -> List[Optional[Jeton]]:
-        """Retourne les jetons voisins"""
-        voisins_coords = self.get_voisins_coords(jeton)
-        voisins = []
-
-        for x, y in voisins_coords:
-            index = x + self.largeur * y
-            voisins.append(grille[index])
-
-        return voisins
-
+    
     def trouver_enclave_large(self, grille: List[Optional[Jeton]]) -> bool:
         """
         Renvoie True si une enclave large a été trouvée, False sinon.
         """
         # Trouver tous les jetons non neutralisés
-        jetons = [j for j in grille if j is not None]
+        jetons = [j for j in grille if isinstance(j, Jeton)]
 
         if not jetons:
             return False
@@ -185,15 +235,46 @@ class Grille:
                 continue
             visited.add(current)
 
-            voisins = self.get_voisins(grille, current)
+            voisins = self.get_voisins(current, grille)
             for voisin in voisins:
-                if voisin is not None and voisin not in visited:
+                if isinstance(voisin, Jeton) and voisin not in visited:
                     stack.append(voisin)
 
         # Si nous n'avons pas visité tous les jetons, il y a une enclave
         return len(visited) != len(jetons)
 
+
+    def get_voisins(self, jeton: Jeton, grille: List[Optional[Jeton]] = None) -> List[Optional[Jeton]]:
+        """Retourne les jetons voisins (jeton ou none)"""
+        if (grille is None):
+            grille = self.grille
+
+        voisins_coords = self.get_voisins_coords(jeton)
+        voisins = []
+
+        for x, y in voisins_coords:
+            index = _2Dto1DCoords(x, y, self.largeur, self.hauteur)
+            voisins.append(grille[index])
+
+        return voisins
+
+
+    def capturer_jeton(self, jeton: Jeton, ratelier: Ratelier) -> None:
+        """
+        Enleve un jeton et retourne tout les voisins jetons non-retournés
+        """
+        voisins = self.get_voisins(jeton)
+        for voisin in voisins:
+            if isinstance(voisin, Jeton):
+                voisin.retourner()
+
+        ratelier.ajouter_jeton(jeton)
+        self.grille[_2Dto1DCoords(jeton.x, jeton.y, self.largeur, self.hauteur)] = JETON_NUL
+
+    
     def __str__(self) -> str:
+        # affiche la grille en un tableau
+        # nb: les cases neutralisés sont notés None.
         graduation = '\t'
         for i in range(self.largeur):
             graduation += f'{i + 1}\t\t\t'
@@ -202,7 +283,7 @@ class Grille:
         for i in range(self.hauteur):
             res += f'{i + 1}|'
             for j in range(self.largeur):
-                res += f'\t{self.grille[self.largeur * i + j]}\t|'
+                res += f'\t{self.grille[_2Dto1DCoords(i, j, self.largeur, self.hauteur)]}\t|'
 
             res += '\n'
 
@@ -210,6 +291,18 @@ class Grille:
 
 
 
+
+
 if __name__ == "__main__":
+    from random import choice
+    
+    r = Ratelier()
     g = Grille(8, 10, 0.28)
+    
+    choix = choice(g.grille)
+    while not isinstance(choix, Jeton):
+        choix = choice(g.grille)
+
+    print(f"capture du jeton {choix.x +1, choix.y +1}")
+    g.capturer_jeton(choix, r)
     print(g)
