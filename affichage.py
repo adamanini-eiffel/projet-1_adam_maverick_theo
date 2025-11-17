@@ -114,9 +114,12 @@ class Plateau :
 
                     ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
 
-                    if not self.plateau[colonne_case][ligne_case].jeton.est_cache :
+                    if self.plateau[colonne_case][ligne_case].jeton is not None and not self.plateau[colonne_case][ligne_case].jeton.est_cache:
 
                         self.plateau[colonne_case][ligne_case].jeton.est_capture = True
+
+                        self.get_voisins(self.plateau[colonne_case][ligne_case], colonne_case, ligne_case)
+
 
             elif tev == 'Quitte':  # on sort de la boucle
                 break
@@ -128,7 +131,39 @@ class Plateau :
 
         fltk.ferme_fenetre()
 
+    def ajouter_ratelier(self, jeton):
 
+        pass
+
+    def get_voisins(self, case, colonne_case, ligne_case):
+
+        print("je suis là", colonne_case, ligne_case)
+
+        if ligne_case - 1 >= 0 and self.plateau[colonne_case][ligne_case - 1].jeton is not None and self.plateau[colonne_case][ligne_case - 1].jeton.est_cache:
+
+            self.plateau[colonne_case][ligne_case - 1].jeton.est_cache = False
+
+            print("a")
+
+        if ligne_case + 1 <= 7 and self.plateau[colonne_case][ligne_case + 1].jeton is not None and self.plateau[colonne_case][ligne_case + 1].jeton.est_cache:
+            
+            self.plateau[colonne_case][ligne_case + 1].jeton.est_cache = False
+
+            print("b")
+
+        if colonne_case - 1 >= 0 and self.plateau[colonne_case - 1][ligne_case].jeton is not None and self.plateau[colonne_case - 1][ligne_case].jeton.est_cache:
+
+            self.plateau[colonne_case - 1][ligne_case].jeton.est_cache = False
+
+            print("c")
+
+        if colonne_case + 1 <= 7 and self.plateau[colonne_case + 1][ligne_case].jeton is not None and self.plateau[colonne_case + 1][ligne_case].jeton.est_cache:
+
+            self.plateau[colonne_case + 1][ligne_case].jeton.est_cache = False
+
+            print("e")
+
+    
     def action_joueur(self,click_x ,click_y):
 
         #index de la case
