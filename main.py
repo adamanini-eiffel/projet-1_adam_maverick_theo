@@ -1,8 +1,7 @@
 import fltk
 import random
 
-from affichage_plateau import Plateau
-from ecran_accueil import Accueil
+from affichage import Plateau
 import jetons
 
 """accueil = Accueil()"""
