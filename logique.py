@@ -1,35 +1,46 @@
-import fltk
-from jetons import Jeton,Ratelier,Grille
+from jetons import Jeton, Ratelier, Grille
 
 
-class regle:
-    def __init__(self,nbpoints=0) -> None:
-        self.nbpoints=nbpoints
-        self.ratelier=Ratelier()
+
+class Regles:
+    def __init__(self, nbpoints = 0) -> None:
+        self.nbpoints = nbpoints
+        self.ratelier = Ratelier()
+        self.grille = Grille(8, 10)
 
 
     def points(self)-> None:
-        if triplette():
-            nbpoints+=1
+        if self.ratelier.triplette() :
+            self.nbpoints += 1
             if self.ratelier.est_complet():
-                nbpoints+=1
-        else:
-            if self.ratelier.est_complet():
-                nbpoints=0
+                self.nbpoints += 1
 
-    def modifier_ratelier(self):
-        if ... :
-            voisins=self.grille.get_voisins(jeton)
-            for voisin in voisins:
-                voisin.Jeton.retourner()
-            self.ratelier.ajouter_jeton()
-        if self.ratelier.est_complet():
+        elif self.ratelier.est_complet():
             self.ratelier=Ratelier()
+            self.nbpoints=0
 
 
 
-    def change_ratelier(self) ->None:
-        pass
+    def modifier_ratelier(self,jeton):
+        if jeton is None:
+            return
+
+        if jeton.est_cache:
+            self.grille.capturer_jeton(jeton,self.ratelier)
+
+
+            if self.ratelier.triplette() :
+                self.nbpoints += 1
+                if self.ratelier.est_complet():
+                    self.nbpoints += 1
+            print(self.nbpoints)
+
+            if self.ratelier.est_complet():
+                print(self.nbpoints)
+                self.nbpoints=0
+                self.ratelier = Ratelier()
+
+
 
 
 

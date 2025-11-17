@@ -1,18 +1,19 @@
 import fltk
+from logique import Regles
 from fltk import remplissage
 
 
 class Plateau :
 
     def __init__(self, longueur_case, largeur_plateau, hauteur_plateau, plateau, ratelier):
-
+        self.regles=Regles()
         self.largeur_plateau = largeur_plateau
         self.hauteur_plateau = hauteur_plateau
 
         self.longueur_case = longueur_case
 
         self.plateau = plateau
-        self.ratelier = ratelier
+        self.ratelier = self.regles.ratelier
 
     def affichage_case(self):
 
@@ -41,13 +42,13 @@ class Plateau :
 
     def affichage_ratelier(self):
 
-        for i in range(len(self.ratelier)) :
+        for i in range(len(self.ratelier.jetons)) :
 
             fltk.rectangle(
-                self.ratelier[i].x,
-                self.ratelier[i].y,
-                self.ratelier[i].x + self.longueur_case,
-                self.ratelier[i].y + self.longueur_case
+                self.ratelier.jetons[i].x,
+                self.ratelier.jetons[i].y,
+                self.ratelier.jetons[i].x + self.longueur_case,
+                self.ratelier.jetons[i].y + self.longueur_case
             )
 
     def affichage_jeton(self):
@@ -109,14 +110,25 @@ class Plateau :
             tev = fltk.type_ev(ev)
 
             if tev == "ClicGauche":
+                res = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
 
-                if self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev)) != 0:
+                if res != 0:
+                    ligne_case, colonne_case = res
+
+                    case = self.plateau[colonne_case][ligne_case]
+                    if case.jeton!=None:
+                        self.regles.modifier_ratelier(case.jeton)
+
 
                     ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
 
                     if not self.plateau[colonne_case][ligne_case].jeton.est_cache :
 
                         self.plateau[colonne_case][ligne_case].jeton.est_capture = True
+                self.affichage_case()
+                self.affichage_ratelier()
+                self.affichage_jeton()
+                fltk.mise_a_jour()
 
             elif tev == 'Quitte':  # on sort de la boucle
                 break

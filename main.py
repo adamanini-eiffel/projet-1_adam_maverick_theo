@@ -1,8 +1,7 @@
 import fltk
 import random
 
-from affichage_plateau import Plateau
-from ecran_accueil import Accueil
+from affichage import Plateau
 import jetons
 
 """accueil = Accueil()"""
@@ -101,7 +100,7 @@ def initialisation_jetons(plateau):
         if case.jeton is not None:
 
             case.jeton.est_cache = False
-
+    print(plateau)
     return plateau
 
 plateau_case = initialisation_jetons(plateau_case)
