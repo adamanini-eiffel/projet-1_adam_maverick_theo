@@ -39,17 +39,6 @@ class Plateau :
                         remplissage = "black",
                     )
 
-    def affichage_ratelier(self):
-
-        for i in range(len(self.ratelier)) :
-
-            fltk.rectangle(
-                self.ratelier[i].x,
-                self.ratelier[i].y,
-                self.ratelier[i].x + self.longueur_case,
-                self.ratelier[i].y + self.longueur_case
-            )
-
     def affichage_jeton(self):
 
         for i in range(len(self.plateau)):
@@ -97,13 +86,12 @@ class Plateau :
 
         fltk.cree_fenetre(self.largeur_plateau, self.hauteur_plateau)
 
-        self.affichage_ratelier()
-
         self.affichage_case()
 
         while True:
 
             self.affichage_jeton()
+            self.affichage_ratelier()
 
             ev = fltk.donne_ev()
             tev = fltk.type_ev(ev)
@@ -120,6 +108,8 @@ class Plateau :
 
                         self.get_voisins(self.plateau[colonne_case][ligne_case], colonne_case, ligne_case)
 
+                        self.ratelier.ajouter_jeton(self.plateau[colonne_case][ligne_case])
+
 
             elif tev == 'Quitte':  # on sort de la boucle
                 break
@@ -131,37 +121,24 @@ class Plateau :
 
         fltk.ferme_fenetre()
 
-    def ajouter_ratelier(self, jeton):
-
-        pass
-
     def get_voisins(self, case, colonne_case, ligne_case):
-
-        print("je suis là", colonne_case, ligne_case)
 
         if ligne_case - 1 >= 0 and self.plateau[colonne_case][ligne_case - 1].jeton is not None and self.plateau[colonne_case][ligne_case - 1].jeton.est_cache:
 
             self.plateau[colonne_case][ligne_case - 1].jeton.est_cache = False
 
-            print("a")
-
         if ligne_case + 1 <= 7 and self.plateau[colonne_case][ligne_case + 1].jeton is not None and self.plateau[colonne_case][ligne_case + 1].jeton.est_cache:
             
             self.plateau[colonne_case][ligne_case + 1].jeton.est_cache = False
-
-            print("b")
 
         if colonne_case - 1 >= 0 and self.plateau[colonne_case - 1][ligne_case].jeton is not None and self.plateau[colonne_case - 1][ligne_case].jeton.est_cache:
 
             self.plateau[colonne_case - 1][ligne_case].jeton.est_cache = False
 
-            print("c")
-
-        if colonne_case + 1 <= 7 and self.plateau[colonne_case + 1][ligne_case].jeton is not None and self.plateau[colonne_case + 1][ligne_case].jeton.est_cache:
+        if colonne_case + 1 <= 9 and self.plateau[colonne_case + 1][ligne_case].jeton is not None and self.plateau[colonne_case + 1][ligne_case].jeton.est_cache:
 
             self.plateau[colonne_case + 1][ligne_case].jeton.est_cache = False
 
-            print("e")
 
     
     def action_joueur(self,click_x ,click_y):
@@ -177,3 +154,20 @@ class Plateau :
         else :
 
             return case_x, case_y
+
+
+    def affichage_ratelier(self):
+
+        x = self.largeur_plateau * 2/3
+        y = 0
+
+        for i in range(self.ratelier.taille_max):
+            
+            fltk.rectangle(
+                x,
+                y,
+                x + self.longueur_case,
+                y + self.longueur_case,
+            )
+
+            y += self.longueur_case
