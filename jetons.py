@@ -2,11 +2,11 @@ from random import random, choice
 from math import sqrt
 from typing import Tuple, Optional, List, Set
 
-Couleurs: tuple = ("red", "yellow", "blue", "orange", "green", "gray", "brown")
+Couleurs: tuple = ("Rouge", "Jaune", "Bleu", "Orange", "Vert", "Gris", "Marron")
 
 # utilitaires
 
-def distance(a, b) -> float:
+def distance(a: Jeton, b: Jeton) -> float:
     """
     Renvoie la distance entre deux jetons
     """
@@ -67,7 +67,6 @@ class Jeton:
     def capturer(self) -> None:
         """Ne devrait être appelé que si self.est_cache est True"""
         self.est_capture = True
-        self.est_cache=False
 
     def __str__(self) -> str:
         return self.couleur
