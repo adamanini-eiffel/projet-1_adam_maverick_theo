@@ -1,6 +1,6 @@
 from random import random, choice
 from math import sqrt
-from typing import Tuple, Optional, List, Set
+from typing import Tuple, Optional, Dict, List, Set
 
 Couleurs: tuple = ("red", "yellow", "blue", "orange", "green", "gray", "brown")
 
@@ -108,14 +108,14 @@ class Ratelier:
         Renvoie True si une triplette est formée et la retire des jetons du râtelier, False sinon.
         Devrait être appellé à chaque mise à jour du râtelier.
         """
-        occurences_couleures: dict = {}
+        occurences_couleurs: dict = {}
         for jeton in self.jetons:
-            if (not jeton.couleur in occurences_couleures):
-                occurences_couleures[jeton.couleur] = 0
+            if (not jeton.couleur in occurences_couleurs):
+                occurences_couleurs[jeton.couleur] = 0
 
-            occurences_couleures[jeton.couleur] += 1
+            occurences_couleurs[jeton.couleur] += 1
 
-        for couleur, occurences in occurences_couleures.items():
+        for couleur, occurences in occurences_couleurs.items():
             if occurences < 3:
                 continue
 
@@ -132,14 +132,19 @@ class Ratelier:
         if not self.est_complet():
             self.jetons.append(jeton)
 
+# temporaire: valeurs de teux_neutralisé qui permettent d'éviter les approximations des floatants:
+# 0.125 -> 3
+# 0.714999973773956298828125 ( ~ 0.715)  -> 2
+
+
 
 class Grille:
-    def __init__(self, largeur: int, hauteur: int, taux_neutralise: float = 0.1) -> None:
+    def __init__(self, largeur: int, hauteur: int, taux_neutralise: float = 0.125) -> None:
         self.largeur = largeur
         self.hauteur = hauteur
         self.grille: List[Optional[Jeton]] = self.generer_grille(taux_neutralise, essais_max=100)
 
-    def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
+    """def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
         attempts = 0
         grille = []
         while attempts < essais_max:
@@ -160,7 +165,42 @@ class Grille:
             attempts += 1
 
         print(f"Impossible de générer une grille sans enclave large après {essais_max} tentatives")
+        return grille"""
+
+    def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
+        grille: List[Optional[Jeton]] = []
+        max_neutralise = int(self.largeur * self.hauteur * taux_neutralise)
+        occurences_couleurs: int = (self.largeur * self.hauteur - max_neutralise) / 3 * len(Couleurs)
+        couleurs: Dict[str: int] = {couleur : occurences_couleurs for couleur in Couleurs}
+        
+        essais = 0
+        while essais < essais_max:
+            grille = [None] * (self.largeur * self.hauteur)
+
+            for cellule in range(len(grille)):
+                if random() <= taux_neutralise:
+                    continue
+
+                x, y = _1Dto2DCoords(cellule, self.largeur, self.hauteur)
+                couleur_jeton = ''
+                while (couleur_jeton not in Couleurs or couleurs[couleur_jeton] == 0):
+                    couleur_jeton = choice(Couleurs)
+
+                couleurs[couleur_jeton] -= 1
+                grille[cellule] = Jeton(couleur_jeton, x, y)
+
+
+            grille = self.corrige_enclaves_simples(grille)
+
+            # on arrête là et on relance
+            if not self.trouver_enclave_large(grille):
+                return grille
+            essais += 1
+
+        print(f"Impossible de générer une grille sans enclave large après {essais_max} tentatives")
         return grille
+
+
 
     def trouver_enclave_simple(self, grille: List[Optional[Jeton]]) -> Tuple[Tuple[int, int], ...]:
         """
@@ -287,11 +327,12 @@ class Grille:
         return res
 
 
+
 if __name__ == "__main__":
     from random import choice
 
     r = Ratelier()
-    g = Grille(8, 10, 0.28)
+    g = Grille(10, 10, 0.40)
 
     choix = choice(g.grille)
     while not isinstance(choix, Jeton):
@@ -299,4 +340,13 @@ if __name__ == "__main__":
 
     print(f"capture du jeton {choix.x + 1, choix.y + 1}")
     g.capturer_jeton(choix, r)
-    print(g)
+    
+    ligne = ''
+    for i, j in enumerate(g.grille):
+        if i % g.largeur == 0:
+            print(ligne)
+            ligne = ''
+
+        ligne += f'{j}\t'
+
+    print(g.trouver_enclave_simple(g.grille))
