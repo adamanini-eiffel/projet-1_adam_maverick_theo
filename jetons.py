@@ -169,8 +169,17 @@ class Grille:
 
     def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
         grille: List[Optional[Jeton]] = []
+        
         max_neutralise = int(self.largeur * self.hauteur * taux_neutralise)
-        occurences_couleurs: int = (self.largeur * self.hauteur - max_neutralise) / 3 * len(Couleurs)
+        occurences_couleurs: int = (self.largeur * self.hauteur - max_neutralise) // len(Couleurs)
+
+        # on choisi la probabilité la plus proche de celle sélectionner qui permet une victoire
+        variance = 0.01
+        condition_victoire = lambda taux: occurences_couleurs * len(Couleurs) != self.largeur * self.hauteur - int(self.largeur * self.hauteur * taux)
+
+        while (condition_victoire):
+            ...
+
         couleurs: Dict[str: int] = {couleur : occurences_couleurs for couleur in Couleurs}
         
         essais = 0
@@ -194,6 +203,7 @@ class Grille:
 
             # on arrête là et on relance
             if not self.trouver_enclave_large(grille):
+                print(couleurs)
                 return grille
             essais += 1
 
