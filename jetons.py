@@ -1,4 +1,3 @@
-
 from random import random, choice
 from math import sqrt
 from typing import Tuple, Optional, List, Set
@@ -104,7 +103,6 @@ class Ratelier:
     def est_vide(self) -> bool:
         return len(self.jetons) == 0
 
-
     def triplette(self) -> bool:
         """
         Renvoie True si une triplette est formée et la retire des jetons du râtelier, False sinon.
@@ -133,12 +131,6 @@ class Ratelier:
     def ajouter_jeton(self, jeton: Jeton) -> None:
         if not self.est_complet():
             self.jetons.append(jeton)
-
-    def __str__(self):
-        res=''
-        for e in self.jetons:
-            res+=e.couleur+ ', '
-        return res
 
 
 class Grille:
