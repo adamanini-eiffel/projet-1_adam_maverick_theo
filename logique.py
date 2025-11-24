@@ -27,19 +27,21 @@ class Regles:
 
         else:
             self.grille.capturer_jeton(jeton,self.ratelier)
-            print(self.ratelier)
-
-
-            if self.ratelier.triplette() :
-                self.nbpoints += 1
-                if self.ratelier.est_complet():
-                    self.nbpoints += 1
-            print(self.nbpoints)
 
             if self.ratelier.est_complet():
+                if self.ratelier.triplette() :
+                    self.nbpoints += 2
+                    print(self.nbpoints)
+
+                else:
+                    print(self.nbpoints)
+                    self.nbpoints=0
+                    print(self.nbpoints)
+                    self.ratelier = Ratelier()
+
+            if self.ratelier.triplette() and not self.ratelier.est_complet():
+                self.nbpoints+=1
                 print(self.nbpoints)
-                self.nbpoints=0
-                self.ratelier = Ratelier()
 
     def enregistrer(self):
         pass

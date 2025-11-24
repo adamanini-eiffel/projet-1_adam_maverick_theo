@@ -153,8 +153,6 @@ class Plateau:
                 self.plateau[colonne_case + 1][ligne_case].jeton.est_cache:
             self.plateau[colonne_case + 1][ligne_case].jeton.est_cache = False
 
-            print("e")
-
     def action_joueur(self, click_x, click_y):
 
         # index de la case

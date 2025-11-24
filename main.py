@@ -8,7 +8,7 @@ partie = "aucune partien en cours"
 
 accueil = ecran_accueil.Accueil()
 
-while partie ==  "aucune partien en cours" :
+while partie ==  "aucune partien en cours":
 
     accueil.affichage()
 
