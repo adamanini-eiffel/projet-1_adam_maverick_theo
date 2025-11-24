@@ -52,27 +52,12 @@ def creation_plateau(plateau_case, plateau_jetons):
 
     return plateau_case
 
-def initialise_ratelier():
 
-    ratelier = []
-
-    case_x = 1000 * 2/3
-
-    case_y = 0
-
-    for i in range(5) :
-
-        ratelier.append(Case(case_x, case_y))
-
-        case_y += longueur_case
-
-    return ratelier
 
 longueur_case = 50
 
 plateau_case = initialisation_plateau(8, 10, longueur_case)
 
-ratelier = initialise_ratelier()
 
 g = jetons.Grille(8, 10, 0.28)
 
@@ -104,5 +89,5 @@ def initialisation_jetons(plateau):
     return plateau
 
 plateau_case = initialisation_jetons(plateau_case)
-
-Plateau(longueur_case, 1000, 600, plateau_case, ratelier).partie()
+ratelier = jetons.Ratelier()
+Plateau(longueur_case, 1000, 600, plateau_case,ratelier).partie()

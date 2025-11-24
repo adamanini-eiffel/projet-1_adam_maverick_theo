@@ -1,18 +1,21 @@
+
 from random import random, choice
 from math import sqrt
 from typing import Tuple, Optional, List, Set
 
-Couleurs: tuple = ("Rouge", "Jaune", "Bleu", "Orange", "Vert", "Gris", "Marron")
+Couleurs: tuple = ("red", "yellow", "blue", "orange", "green", "gray", "brown")
+
 
 # utilitaires
 
-def distance(a: Jeton, b: Jeton) -> float:
+def distance(a,b) -> float:
     """
     Renvoie la distance entre deux jetons
     """
     if a is None or b is None:
         return -1
     return sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+
 
 def _1Dto2DCoords(coord: int, largeur: int = 8, hauteur: int = 10) -> Tuple[int, int]:
     """
@@ -23,28 +26,29 @@ def _1Dto2DCoords(coord: int, largeur: int = 8, hauteur: int = 10) -> Tuple[int,
     """
     if (coord < 0 or coord >= largeur * hauteur):
         return (-1, -1)
-    
+
     x = coord % largeur
     y = coord // largeur
     return (x, y)
-    
+
+
 def _2Dto1DCoords(x: int, y: int, largeur: int = 8, hauteur: int = 10) -> int:
     """
     Renvoie la coordonée (une dimention) correspondant au point de coordonée (x, y) dans une table l * h.
     la coordonée -1 est renvoyé si la coordonée n'appartient pas à la table.
     Fonction réciproque de _1Dto2DCoords.
     """
-    if (x < 0 or y < 0 or x >= largeur or y >=hauteur):
+    if (x < 0 or y < 0 or x >= largeur or y >= hauteur):
         return -1
-    
+
     return y * largeur + x
+
 
 def _2Dto1DCoordsTuple(coords: tuple[int, int], largeur: int = 8, hauteur: int = 10) -> int:
     """
     Pareil que _2Dto1DCoords, coords est un tuple de deux entiers qui représente une coordonée sur la table.
     """
     return _2Dto1DCoords(coords[0], coords[1], largeur, hauteur)
-
 
 
 # classes
@@ -57,7 +61,6 @@ class Jeton:
         self.est_cache = True
         self.est_capture = False
 
- 
     def get_couleur(self) -> str:
         return self.couleur
 
@@ -78,12 +81,14 @@ class JetonNul:
     Pas besoin de stoker des variables autres que la couleure. Une seule instance peut être dupliqué
     au besoin (celle juste en dessous)
     """
+
     def __init__(self) -> None:
         self.couleur = "BLANC"
 
     def __str__(self) -> str:
         return self.couleur
-    
+
+
 # jeton constant à dupliquer
 JETON_NUL = JetonNul()
 
@@ -99,6 +104,7 @@ class Ratelier:
     def est_vide(self) -> bool:
         return len(self.jetons) == 0
 
+
     def triplette(self) -> bool:
         """
         Renvoie True si une triplette est formée et la retire des jetons du râtelier, False sinon.
@@ -108,7 +114,7 @@ class Ratelier:
         for jeton in self.jetons:
             if (not jeton.couleur in occurences_couleures):
                 occurences_couleures[jeton.couleur] = 0
-            
+
             occurences_couleures[jeton.couleur] += 1
 
         for couleur, occurences in occurences_couleures.items():
@@ -116,7 +122,7 @@ class Ratelier:
                 continue
 
             enlevee = 0
-            for j in self.jetons[:]:        # copie pour éviter d'itérer sur une liste modifiée
+            for j in self.jetons[:]:  # copie pour éviter d'itérer sur une liste modifiée
                 if j.couleur == couleur and enlevee < 3:
                     self.jetons.remove(j)
                     enlevee += 1
@@ -124,19 +130,22 @@ class Ratelier:
             return True
         return False
 
-
     def ajouter_jeton(self, jeton: Jeton) -> None:
         if not self.est_complet():
             self.jetons.append(jeton)
 
-
+    def __str__(self):
+        res=''
+        for e in self.jetons:
+            res+=e.couleur+ ', '
+        return res
 
 
 class Grille:
     def __init__(self, largeur: int, hauteur: int, taux_neutralise: float = 0.1) -> None:
         self.largeur = largeur
         self.hauteur = hauteur
-        self.grille: List[Optional[Jeton]] = self.generer_grille(taux_neutralise, essais_max = 100)
+        self.grille: List[Optional[Jeton]] = self.generer_grille(taux_neutralise, essais_max=100)
 
     def generer_grille(self, taux_neutralise: float, essais_max: int = 100) -> List[Optional[Jeton]]:
         attempts = 0
@@ -214,7 +223,6 @@ class Grille:
 
         return voisins
 
-    
     def trouver_enclave_large(self, grille: List[Optional[Jeton]]) -> bool:
         """
         Renvoie True si une enclave large a été trouvée, False sinon.
@@ -243,7 +251,6 @@ class Grille:
         # Si nous n'avons pas visité tous les jetons, il y a une enclave
         return len(visited) != len(jetons)
 
-
     def get_voisins(self, jeton: Jeton, grille: List[Optional[Jeton]] = None) -> List[Optional[Jeton]]:
         """Retourne les jetons voisins (jeton ou none)"""
         if (grille is None):
@@ -258,7 +265,6 @@ class Grille:
 
         return voisins
 
-
     def capturer_jeton(self, jeton: Jeton, ratelier: Ratelier) -> None:
         """
         Enleve un jeton et retourne tout les voisins jetons non-retournés
@@ -271,7 +277,6 @@ class Grille:
         ratelier.ajouter_jeton(jeton)
         self.grille[_2Dto1DCoords(jeton.x, jeton.y, self.largeur, self.hauteur)] = JETON_NUL
 
-    
     def __str__(self) -> str:
         # affiche la grille en un tableau
         # nb: les cases neutralisés sont notés None.
@@ -290,19 +295,16 @@ class Grille:
         return res
 
 
-
-
-
 if __name__ == "__main__":
     from random import choice
-    
+
     r = Ratelier()
     g = Grille(8, 10, 0.28)
-    
+
     choix = choice(g.grille)
     while not isinstance(choix, Jeton):
         choix = choice(g.grille)
 
-    print(f"capture du jeton {choix.x +1, choix.y +1}")
+    print(f"capture du jeton {choix.x + 1, choix.y + 1}")
     g.capturer_jeton(choix, r)
     print(g)

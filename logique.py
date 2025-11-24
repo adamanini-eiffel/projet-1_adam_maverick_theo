@@ -1,4 +1,4 @@
-from jetons import Jeton, Ratelier, Grille
+from jetons import  Ratelier, Grille
 
 
 
@@ -25,8 +25,9 @@ class Regles:
         if jeton is None:
             return
 
-        if jeton.est_cache:
+        else:
             self.grille.capturer_jeton(jeton,self.ratelier)
+            print(self.ratelier)
 
 
             if self.ratelier.triplette() :
@@ -39,6 +40,15 @@ class Regles:
                 print(self.nbpoints)
                 self.nbpoints=0
                 self.ratelier = Ratelier()
+
+    def enregistrer(self):
+        pass
+
+
+
+    def load(self):
+        pass
+
 
 
 
