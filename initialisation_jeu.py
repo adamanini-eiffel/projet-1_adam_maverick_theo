@@ -4,6 +4,8 @@ import random
 from affichage import Plateau
 import jetons
 
+# Pour que ça soit plus facile à modifier pour les tests. Valeur sur le sujet : 0.28
+PROBA_NEUTRALISE = 0.4
 
 class Case:
 
@@ -57,7 +59,7 @@ plateau_case = initialisation_plateau(8, 10, longueur_case)
 
 ratelier = jetons.Ratelier()
 
-g = jetons.Grille(8, 10, 0.28)
+g = jetons.Grille(8, 10, PROBA_NEUTRALISE)
 
 def liste_vers_tableau(liste, lignes, colonnes):
     return [liste[i*colonnes:(i+1)*colonnes] for i in range(lignes)]
