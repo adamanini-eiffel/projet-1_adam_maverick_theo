@@ -62,7 +62,6 @@ def _2Dto1DCoordsTuple(coords: tuple[int, int], largeur: int = 8, hauteur: int =
     return _2Dto1DCoords(coords[0], coords[1], largeur, hauteur)
 
 
-# marches pas, mais permet d'assurer que ça reste possible donc tout va bien
 def optimise_probabilite(p: float, cases: int, max_deviation: float = -1):
     """
     Prends une probabilité initiale p correspondant au nombre de cases neutralisées, cases le nombre de cases totales
@@ -198,7 +197,6 @@ class Grille:
         print(f"taux trouvé: {taux_optimise} (diff: {round(abs(taux_neutralise - taux_optimise), 5)})")
         print(f"{occurrences_par_couleur = }")
         print(f"{cases_valides = }, cases_totales = {self.largeur * self.hauteur}, diff = {self.largeur * self.hauteur - cases_valides}")
-        print("aaaaaaaaaaaaaaaa")
 
         if cases_valides == 0:
             print("la probabilité qu'une case soit neutralisée est probablement beaucoup trop haute")
