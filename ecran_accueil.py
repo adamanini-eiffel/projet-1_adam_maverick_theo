@@ -7,6 +7,8 @@ class Accueil:
         # Permet de savoir si l'utilisateur est encore sur l'écran d'accueil du jeu
         self.statue = True
 
+        self.mode = "solo"
+
     def affichage(self):
 
         fltk.cree_fenetre(1000, 1000)
@@ -20,15 +22,19 @@ class Accueil:
 
             if tev == "ClicGauche":
 
-                print(True, fltk.abscisse(ev), fltk.ordonnee(ev))
-
-                if fltk.abscisse(ev) >= 450 and fltk.abscisse(ev) <= 550 and fltk.ordonnee(ev) >= 550 and fltk.ordonnee(ev) <= 650:
-
+                if fltk.abscisse(ev) >= 1000 * 1/ 3 - 70 and fltk.abscisse(ev) <= 1000 * 1/ 3 + 70 and fltk.ordonnee(ev) >= 530 and fltk.ordonnee(ev) <= 670:
 
                     self.statue = False
 
                     break
 
+                if fltk.abscisse(ev) >= 1000 * 2/ 3 - 70 and fltk.abscisse(ev) <= 1000 * 2/ 3 + 70 and fltk.ordonnee(ev) >= 530 and fltk.ordonnee(ev) <= 670:
+
+                    self.statue = False
+
+                    self.mode = "multi"
+
+                    break
             else:
                 pass
 
@@ -41,7 +47,17 @@ class Accueil:
 
         fltk.texte(500, 300, "Bienvenue sur PickTok !", couleur="red", ancrage='center', police = "monsterrat")
 
-        fltk.texte(500, 600, "Play", ancrage='center', police = "mmonsterrat")
 
-        fltk.cercle(500,600, 50, epaisseur = 6)
+        fltk.texte(1000 * 1/ 3, 600, "Play solo",taille = 20, ancrage='center', police = "monsterrat")
+        fltk.cercle(1000 * 1/ 3,600, 70, epaisseur = 5)
 
+
+        fltk.texte(1000 * 2/ 3, 600, "Play multi",taille = 20, ancrage='center', police = "monsterrat")
+        fltk.cercle(1000 * 2 / 3, 600, 70, epaisseur = 5)
+
+
+        fltk.texte(1000 * 1/ 3, 760, "Score",taille = 20, ancrage='center', police = "monsterrat")
+
+        fltk.texte(1000 * 1 / 3, 785, "All Time", taille=20, ancrage='center', police="monsterrat")
+
+        fltk.cercle(1000 * 1 / 3, 775, 70, epaisseur = 5)
