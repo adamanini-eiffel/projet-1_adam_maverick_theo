@@ -1,11 +1,6 @@
-import fltk
-import random
-
 from affichage import Plateau
 import jetons
 
-# Pour que ça soit plus facile à modifier pour les tests. Valeur sur le sujet : 0.28
-PROBA_NEUTRALISE = 0.4
 
 class Case:
 
@@ -57,16 +52,14 @@ longueur_case = 50
 
 plateau_case = initialisation_plateau(8, 10, longueur_case)
 
-ratelier = jetons.Ratelier()
-
-g = jetons.Grille(8, 10, PROBA_NEUTRALISE)
+g = jetons.Grille(8, 10, 0.3)
 
 def liste_vers_tableau(liste, lignes, colonnes):
     return [liste[i*colonnes:(i+1)*colonnes] for i in range(lignes)]
 
 plateau_jetons = liste_vers_tableau(g.grille, 10, 8)
 
-def fusion (plateau_case, plateau_jetons):
+def fusion(plateau_case, plateau_jetons):
 
     for i in range (len(plateau_jetons)):
 
@@ -90,7 +83,6 @@ def initialisation_jetons(plateau):
 
 plateau_case = initialisation_jetons(plateau_case)
 
-
 def creation_jeu() :
 
-    return Plateau(longueur_case, 1000, 600, plateau_case, ratelier).partie()
+    return Plateau(longueur_case, 1000, 600, plateau_case)
