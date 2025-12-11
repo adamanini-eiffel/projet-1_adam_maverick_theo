@@ -1,21 +1,49 @@
-import fltk
-import random
-
-import initialisation_jeu
+from initialisation_jeu import creation_jeu
 import ecran_accueil
+import ecran_fin
 
-partie = "aucune partien en cours"
+def picktok():
 
-accueil = ecran_accueil.Accueil()
+    statue_partie = "aucune partie en en cours"
 
-while partie ==  "aucune partien en cours":
+    accueil = ecran_accueil.Accueil()
 
-    accueil.affichage()
+    while statue_partie ==  "aucune partie en en cours" :
 
-    if not accueil.statue :
+        accueil.affichage()
 
-        partie = "partie en cours"
+        if not accueil.statue :
 
-initialisation_jeu.creation_jeu()
+            statue_partie = "partie en cours"
+
+    partie = creation_jeu()
+
+    while statue_partie == "partie en cours":
+
+        if accueil.mode == "multi" :
+
+            partie.multijoueur()
+
+        partie.deroulement_partie()
+
+        statue_partie = "fin de partie"
+
+    score = partie.logique_score_ratelier.nb_points
+
+    fin = ecran_fin.Game_over()
+
+    while statue_partie == "fin de partie" :
+
+        if accueil.mode == "multi" :
+
+            fin.affichage_multi(partie.liste_joueurs)
+
+        else:
+
+            fin.affichage_solo(score)
+
+        break
+
+picktok()
 
 
