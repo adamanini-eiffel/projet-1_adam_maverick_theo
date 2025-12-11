@@ -1,11 +1,11 @@
 import fltk
-from fltk import remplissage
 from logique import Regles
-from jetons import Ratelier
+import playeur
+
 
 class Plateau:
 
-    def __init__(self, longueur_case, largeur_plateau, hauteur_plateau, plateau, ratelier: Ratelier):
+    def __init__(self, longueur_case, largeur_plateau, hauteur_plateau, plateau):
 
         self.largeur_plateau = largeur_plateau
         self.hauteur_plateau = hauteur_plateau
@@ -13,109 +13,116 @@ class Plateau:
         self.longueur_case = longueur_case
 
         self.plateau = plateau
-        self.ratelier = ratelier
-        self.regles=Regles()
+        self.logique_score_ratelier = Regles()
+
+        self.liste_joueurs = []
+        self.tour = 1
+
 
     def affichage_case(self):
 
-        for i in range(len(self.plateau)):
+        for ligne in self.plateau:
 
-            for j in range(len(self.plateau[i])):
+            for case in ligne:
+                remplissage = None if case.jeton is not None else "black"
 
-                if self.plateau[i][j].jeton is not None:
-
-                    fltk.rectangle(
-                        self.plateau[i][j].x,
-                        self.plateau[i][j].y,
-                        self.plateau[i][j].x + self.longueur_case,
-                        self.plateau[i][j].y + self.longueur_case
-                    )
-
-                else:
-
-                    fltk.rectangle(
-                        self.plateau[i][j].x,
-                        self.plateau[i][j].y,
-                        self.plateau[i][j].x + self.longueur_case,
-                        self.plateau[i][j].y + self.longueur_case,
-                        remplissage="black",
-                    )
-
-
+                fltk.rectangle(
+                    case.x,
+                    case.y,
+                    case.x + self.longueur_case,
+                    case.y + self.longueur_case,
+                    remplissage=remplissage
+                )
 
     def affichage_jeton(self):
 
-        for i in range(len(self.plateau)):
+        for col in self.plateau:
 
-            for j in range(len(self.plateau[i])):
+            for case in col:
 
-                if self.plateau[i][j].jeton is not None and not self.plateau[i][j].jeton.est_capture and \
-                        self.plateau[i][j].jeton.est_cache:
+                jeton = case.jeton
 
-                    fltk.cercle(
-                        (self.plateau[i][j].x * 2 + self.longueur_case) // 2,
-                        (self.plateau[i][j].y * 2 + self.longueur_case) // 2,
-                        20,
-                        remplissage="white"
-                    )
+                if jeton is None:
+                    continue
 
-                    fltk.cercle(
-                        (self.plateau[i][j].x * 2 + self.longueur_case) // 2,
-                        (self.plateau[i][j].y * 2 + self.longueur_case) // 2,
-                        10,
-                        remplissage=str(self.plateau[i][j].jeton)
-                    )
+                cx = (case.x * 2 + self.longueur_case) // 2
+                cy = (case.y * 2 + self.longueur_case) // 2
 
-                elif self.plateau[i][j].jeton is not None and not self.plateau[i][j].jeton.est_capture and \
-                        not self.plateau[i][j].jeton.est_cache:
+                if not jeton.est_capture and jeton.est_cache:
 
-                    fltk.cercle(
-                        (self.plateau[i][j].x * 2 + self.longueur_case) // 2,
-                        (self.plateau[i][j].y * 2 + self.longueur_case) // 2,
-                        20,
-                        remplissage=str(self.plateau[i][j].jeton)
-                    )
+                    remplissage1 = "white"
+                    remplissage2 = str(jeton)
 
-                elif self.plateau[i][j].jeton is not None and self.plateau[i][j].jeton.est_capture and \
-                        not self.plateau[i][j].jeton.est_cache:
+                    fltk.cercle(cx, cy, 20, remplissage=remplissage1)
+                    fltk.cercle(cx, cy, 10, remplissage=remplissage2)
 
-                    fltk.cercle(
-                        (self.plateau[i][j].x * 2 + self.longueur_case) // 2,
-                        (self.plateau[i][j].y * 2 + self.longueur_case) // 2,
-                        20,
-                        remplissage="white"
-                    )
+                elif not jeton.est_capture and not jeton.est_cache:
 
-    def partie(self):
+                    remplissage = str(jeton)
+                    fltk.cercle(cx, cy, 20, remplissage=remplissage)
+
+                elif jeton.est_capture and not jeton.est_cache:
+
+                    remplissage = "white"
+                    fltk.cercle(cx, cy, 20, remplissage=remplissage)
+
+    def deroulement_partie(self):
 
         fltk.cree_fenetre(self.largeur_plateau, self.hauteur_plateau)
 
-
         self.affichage_case()
+        self.affichage_jeton()
 
         while True:
-
-            self.affichage_jeton()
 
             ev = fltk.donne_ev()
             tev = fltk.type_ev(ev)
 
             if tev == "ClicGauche":
 
-                if self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev)) != 0:
+                ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
 
-                    ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
+                case_selectionner = self.plateau[colonne_case][ligne_case]
 
-                    if self.plateau[colonne_case][ligne_case].jeton is not None and not self.plateau[colonne_case][
-                        ligne_case].jeton.est_cache:
-                        self.plateau[colonne_case][ligne_case].jeton.est_capture = True
-                        self.regles.modifier_ratelier(self.plateau[colonne_case][ligne_case].jeton)
+                print(case_selectionner.jeton.est_cache)
 
-                        self.get_voisins(self.plateau[colonne_case][ligne_case], colonne_case, ligne_case)
+                if case_selectionner.jeton is not None and not case_selectionner.jeton.est_cache and not case_selectionner.jeton.est_capture:
 
+                    case_selectionner.jeton.capturer()
 
+                    case_selectionner.jeton.retourner()
 
-            elif tev == 'Quitte':  # on sort de la boucle
+                    self.get_voisins(colonne_case, ligne_case)
+
+                    for i in range(len(self.logique_score_ratelier.ratelier.jetons)):
+
+                        fltk.efface("jeton_" + str(i))
+
+                    if len(self.liste_joueurs) == 0:
+
+                        self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+
+                    else :
+
+                        tour = self.tour_joueur()
+
+                        self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+
+                        self.liste_joueurs[tour].ajouter_points(self.logique_score_ratelier.nb_points)
+
+                        self.logique_score_ratelier.nb_points = 0
+
+                    self.affichage_ratelier()
+
+                    fltk.efface("score")
+
+                    fltk.efface("joueur")
+
+                    self.affichage_score()
+
+                self.affichage_jeton()
+
+            elif tev == 'Quitte' or self.logique_score_ratelier.fin_de_partie:  # on sort de la boucle
                 break
 
             else:  # dans les autres cas, on ne fait rien
@@ -125,33 +132,24 @@ class Plateau:
 
         fltk.ferme_fenetre()
 
+    def get_voisins(self, colonne_case, ligne_case):
 
+        directions = [
+            (0, -1),
+            (0, 1),
+            (-1, 0),
+            (1, 0)
+        ]
 
-    def ajouter_ratelier(self, jeton):
+        for dc, dl in directions:
+            c = colonne_case + dc
+            l = ligne_case + dl
 
-        pass
+            if 0 <= c < len(self.plateau) and 0 <= l < len(self.plateau[0]):
+                jeton = self.plateau[c][l].jeton
 
-    def get_voisins(self, case, colonne_case, ligne_case):
-
-
-        if ligne_case - 1 >= 0 and self.plateau[colonne_case][ligne_case - 1].jeton is not None and \
-                self.plateau[colonne_case][ligne_case - 1].jeton.est_cache:
-            self.plateau[colonne_case][ligne_case - 1].jeton.est_cache = False
-
-
-        if ligne_case + 1 <= 7 and self.plateau[colonne_case][ligne_case + 1].jeton is not None and \
-                self.plateau[colonne_case][ligne_case + 1].jeton.est_cache:
-            self.plateau[colonne_case][ligne_case + 1].jeton.est_cache = False
-
-
-        if colonne_case - 1 >= 0 and self.plateau[colonne_case - 1][ligne_case].jeton is not None and \
-                self.plateau[colonne_case - 1][ligne_case].jeton.est_cache:
-            self.plateau[colonne_case - 1][ligne_case].jeton.est_cache = False
-
-
-        if colonne_case + 1 <= 7 and self.plateau[colonne_case + 1][ligne_case].jeton is not None and \
-                self.plateau[colonne_case + 1][ligne_case].jeton.est_cache:
-            self.plateau[colonne_case + 1][ligne_case].jeton.est_cache = False
+                if jeton is not None and jeton.est_cache:
+                    jeton.est_cache = False
 
     def action_joueur(self, click_x, click_y):
 
@@ -166,3 +164,104 @@ class Plateau:
         else:
 
             return case_x, case_y
+
+    def affichage_ratelier(self):
+
+        x = self.largeur_plateau * 2 / 3
+        y = 0
+
+        for i in range(self.logique_score_ratelier.ratelier.taille_max):
+            fltk.rectangle(
+                x,
+                y,
+                x + self.longueur_case,
+                y + self.longueur_case,
+            )
+
+            y += self.longueur_case
+
+        y = 0
+
+        liste_jeton_graphique = []
+
+
+        for i in range(len(self.logique_score_ratelier.ratelier.jetons)):
+            cx = (x * 2 + self.longueur_case) // 2
+            cy = (y * 2 + self.longueur_case) // 2
+
+            remplissage = str(self.logique_score_ratelier.ratelier.jetons[i])
+
+            jeton = fltk.cercle(
+                cx,
+                cy,
+                20,
+                remplissage=remplissage,
+                tag = "jeton_" + str(i)
+            )
+
+            liste_jeton_graphique.append(jeton)
+
+            y += self.longueur_case
+
+    def affichage_score(self):
+
+        score = self.logique_score_ratelier.nb_points
+
+        cx = self.largeur_plateau * 2 / 3
+        cy = self.hauteur_plateau * 2 / 3
+
+        fltk.rectangle(
+            cx,
+            cy,
+            cx + self.largeur_plateau * 1 / 3,
+            cy + self.hauteur_plateau * 1 / 3,
+        )
+
+        if len(self.liste_joueurs) == 0 :
+
+            fltk.texte(
+                cx + 15,
+                cy + 75,
+                "Votre score est de : " + str(score),
+                taille = 20,
+                tag = "score"
+        )
+
+        else :
+
+            fltk.texte(
+                cx + 15,
+                cy + 45,
+                "C'est le tour du : " + self.liste_joueurs[self.tour].pseudo,
+                taille = 20,
+                tag = "joueur"
+            )
+
+            fltk.texte(
+                cx + 15,
+                cy + 75,
+                "Votre score est de : " + str(self.liste_joueurs[self.tour].score),
+                taille = 20,
+                tag = "score"
+            )
+
+    def multijoueur(self):
+
+        for i in range(2):
+
+            self.liste_joueurs.append(playeur.Joueur("joueur_" + str(i + 1)))
+
+    def tour_joueur(self):
+
+        if self.tour == 1:
+
+            self.tour = 0
+
+            return self.tour
+
+        else :
+
+            self.tour = 1
+
+            return self.tour
+
