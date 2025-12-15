@@ -53,14 +53,13 @@ def enregistrer(fichier: str, grille, ratelier: Ratelier, multijoueur: bool, sco
         for ligne in grille:
             for case in ligne:
                 grille_str += f"({case.x}, {case.y}): {case.jeton}, "
-            grille_str += '\n'
         file.write(f"{grille_str}{'}'}\n")
 
         file.write("===== Ratelier =====\n")
         ratelier_str = ''
         for jeton in ratelier.jetons:
             ratelier_str += f"{jeton} "
-        file.write(f"{ratelier_str}\n")
+        file.write(f"{ratelier_str if ratelier_str else None }\n")
 
         file.write("===== Scores =====\n")
         file.write(f"{multijoueur = }\n")

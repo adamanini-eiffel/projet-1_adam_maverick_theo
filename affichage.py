@@ -250,7 +250,7 @@ class Plateau:
 
         for i in range(2):
 
-            self.liste_joueurs.append(playeur.Joueur("joueur_" + str(i + 1)))
+            self.liste_joueurs.append(player.Joueur("joueur_" + str(i + 1)))
 
     def tour_joueur(self):
 
