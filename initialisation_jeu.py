@@ -1,18 +1,18 @@
 from affichage import Plateau
 import jetons
-
+from jetons import Jeton
 
 class Case:
 
     def __init__(self, x, y):
 
-        self.jeton = 0
+        self.jeton: Jeton = 0
 
         self.x = x
         self.y = y
 
     def __str__(self):
-        return f"Case de {self.jeton} jeton(s) x:{self.x} y:{self.y}"
+        return f"{self.x}, {self.y}: {self.jeton}"
 
 
 def initialisation_plateau(nb_case_largeur, nb_case_hauteur, longueur_case):

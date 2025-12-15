@@ -3,21 +3,21 @@ from jetons import  Ratelier, Grille
 
 
 class Regles:
-    def __init__(self, nbpoints = 0) -> None:
-        self.nbpoints = nbpoints
+    def __init__(self, nb_points = 0) -> None:
+        self.nb_points = nb_points
         self.ratelier = Ratelier()
         self.grille = Grille(8, 10)
 
 
     def points(self)-> None:
         if self.ratelier.triplette() :
-            self.nbpoints += 1
+            self.nb_points += 1
             if self.ratelier.est_complet():
-                self.nbpoints += 1
+                self.nb_points += 1
 
         elif self.ratelier.est_complet():
             self.ratelier=Ratelier()
-            self.nbpoints=0
+            self.nb_points=0
 
 
 
@@ -30,28 +30,41 @@ class Regles:
 
             if self.ratelier.est_complet():
                 if self.ratelier.triplette() :
-                    self.nbpoints += 2
-                    print(self.nbpoints)
+                    self.nb_points += 2
+                    print(self.nb_points)
 
                 else:
-                    print(self.nbpoints)
-                    self.nbpoints=0
-                    print(self.nbpoints)
+                    print(self.nb_points)
+                    self.nb_points=0
+                    print(self.nb_points)
                     self.ratelier = Ratelier()
 
             if self.ratelier.triplette() and not self.ratelier.est_complet():
-                self.nbpoints+=1
-                print(self.nbpoints)
+                self.nb_points+=1
+                print(self.nb_points)
 
-    def enregistrer(self):
-        pass
+def enregistrer(fichier: str, grille, ratelier: Ratelier, multijoueur: bool, score: dict[str, int]):
+    if not "sauvegardes/" in fichier:
+        fichier = f"sauvegardes/{fichier}"
 
+    with open(fichier, "w") as file:
+        file.write("===== Grille =====\n")
+        grille_str = '{'
+        for ligne in grille:
+            for case in ligne:
+                grille_str += f"({case.x}, {case.y}): {case.jeton}, "
+            grille_str += '\n'
+        file.write(f"{grille_str}{'}'}\n")
 
+        file.write("===== Ratelier =====\n")
+        ratelier_str = ''
+        for jeton in ratelier.jetons:
+            ratelier_str += f"{jeton} "
+        file.write(f"{ratelier_str}\n")
 
-    def load(self):
-        pass
-
-
+        file.write("===== Scores =====\n")
+        file.write(f"{multijoueur = }\n")
+        file.write(f"{score}\n")
 
 
 

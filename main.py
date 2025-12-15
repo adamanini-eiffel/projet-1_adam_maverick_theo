@@ -1,6 +1,7 @@
 from initialisation_jeu import creation_jeu
 import ecran_accueil
 import ecran_fin
+from logique import enregistrer
 
 def picktok():
 
@@ -27,6 +28,7 @@ def picktok():
         partie.deroulement_partie()
 
         statue_partie = "fin de partie"
+        enregistrer("test1.scores", partie.plateau, partie.logique_score_ratelier.ratelier, False, None)
 
     score = partie.logique_score_ratelier.nb_points
 

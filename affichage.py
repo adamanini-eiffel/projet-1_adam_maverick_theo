@@ -1,6 +1,6 @@
 import fltk
 from logique import Regles
-import playeur
+import player
 
 
 class Plateau:
@@ -79,12 +79,13 @@ class Plateau:
             tev = fltk.type_ev(ev)
 
             if tev == "ClicGauche":
-
-                ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
+                
+                cases = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
+                if cases == 0:
+                    continue
+                ligne_case, colonne_case = cases
 
                 case_selectionner = self.plateau[colonne_case][ligne_case]
-
-                print(case_selectionner.jeton.est_cache)
 
                 if case_selectionner.jeton is not None and not case_selectionner.jeton.est_cache and not case_selectionner.jeton.est_capture:
 
@@ -122,7 +123,7 @@ class Plateau:
 
                 self.affichage_jeton()
 
-            elif tev == 'Quitte' or self.logique_score_ratelier.fin_de_partie:  # on sort de la boucle
+            elif tev == 'Quitte':  # on sort de la boucle
                 break
 
             else:  # dans les autres cas, on ne fait rien

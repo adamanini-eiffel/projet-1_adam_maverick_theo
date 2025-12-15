@@ -15,7 +15,7 @@ from math import sqrt
 from typing import Tuple, Optional, List, Set
 
 Couleurs: tuple = ("red", "yellow", "blue", "orange", "green", "gray", "brown")
-
+TAUX_NEUTRALISE = 0.5
 
 # ------------------------- utilitaires -------------------------
 
@@ -330,6 +330,7 @@ class Grille:
         """
         Enlève un jeton et retourne tous les voisins jetons non-retournés
         """
+        print("capture")
         voisins = self.get_voisins(jeton)
         for voisin in voisins:
             if isinstance(voisin, Jeton):
