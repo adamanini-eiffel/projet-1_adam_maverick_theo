@@ -6,7 +6,7 @@ class Regles:
     def __init__(self, nb_points = 0) -> None:
         self.nb_points = nb_points
         self.ratelier = Ratelier()
-        self.grille = Grille(8, 10)
+        self.grille = Grille(8, 10, 0.99)
 
 
     def points(self)-> None:

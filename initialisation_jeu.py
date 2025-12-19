@@ -52,7 +52,8 @@ longueur_case = 50
 
 plateau_case = initialisation_plateau(8, 10, longueur_case)
 
-g = jetons.Grille(8, 10, 0.3)
+g = jetons.Grille(8, 10, 0.9)
+print(g)
 
 def liste_vers_tableau(liste, lignes, colonnes):
     return [liste[i*colonnes:(i+1)*colonnes] for i in range(lignes)]
