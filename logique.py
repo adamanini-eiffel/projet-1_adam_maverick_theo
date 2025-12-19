@@ -6,7 +6,7 @@ class Regles:
     def __init__(self, nb_points = 0) -> None:
         self.nb_points = nb_points
         self.ratelier = Ratelier()
-        self.grille = Grille(8, 10, 0.99)
+        self.grille = Grille(8, 10)
 
 
     def points(self)-> None:
@@ -43,8 +43,18 @@ class Regles:
                 self.nb_points+=1
                 print(self.nb_points)
 
+from os import mkdir
 def enregistrer(fichier: str, grille, ratelier: Ratelier, multijoueur: bool, score: dict[str, int]):
     if not "sauvegardes/" in fichier:
+        try:
+            mkdir("./sauveguardes")
+            print(f"Directory 'sauveguardes' created successfully.")
+        except FileExistsError:
+            print(f"Directory 'sauveguardes' already exists.")
+        except PermissionError:
+            print(f"Permission denied: Unable to create 'sauveguardes'.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
         fichier = f"sauvegardes/{fichier}"
 
     with open(fichier, "w") as file:

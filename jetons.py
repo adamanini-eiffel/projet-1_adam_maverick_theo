@@ -75,9 +75,14 @@ def optimise_probabilite(p: float, cases: int, max_deviation: float = -1):
 
     c = len(Couleurs)
     k_ideal = ((1 - p) * cases) / (3 * c)         # nombre de cases idéal pour que la prédiction soit égale à p (pas un int)
-    k_optimal = round(k_ideal)
+    k_optimal = int(k_ideal)
     new_p = 1 - ((3 * k_optimal * c) / cases)     # on en déduit la nouvelle probabilité
 
+
+    print("="*100)
+    print(f"{k_ideal = }")
+    print(f"{k_optimal = }")
+    print(f"{new_p = }")
     return new_p if abs(new_p - p) < max_deviation else -1
 
 
@@ -188,6 +193,8 @@ class Grille:
         # Ajuster pour que le total soit correct
         total_jetons = sum(occurrences_par_couleur.values())
         difference = cases_valides - total_jetons
+
+        print(f"occurences (0): {occurrences_par_couleur}")
         if difference > 0:
             # Distribuer les jetons restants
             couleurs = list(Couleurs)
@@ -195,7 +202,7 @@ class Grille:
                 occurrences_par_couleur[couleurs[i % len(couleurs)]] += 1
 
         print(f"taux trouvé: {taux_optimise} (diff: {round(abs(taux_neutralise - taux_optimise), 5)})")
-        print(f"{occurrences_par_couleur = }")
+        print(f"occurences (1): {occurrences_par_couleur = }")
         print(f"{cases_valides = }, cases_totales = {self.largeur * self.hauteur}, diff = {self.largeur * self.hauteur - cases_valides}")
 
         if cases_valides == 0:
