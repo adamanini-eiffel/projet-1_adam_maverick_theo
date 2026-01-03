@@ -1,6 +1,6 @@
 import fltk
-from logique import Regles
-import player
+import logique
+import joueur
 
 
 class Plateau:
@@ -13,10 +13,10 @@ class Plateau:
         self.longueur_case = longueur_case
 
         self.plateau = plateau
-        self.logique_score_ratelier = Regles()
+        self.logique_score_ratelier = logique.Regles()
 
         self.liste_joueurs = []
-        self.tour = 1
+        self.tour = 0
 
 
     def affichage_case(self):
@@ -48,10 +48,11 @@ class Plateau:
                 cx = (case.x * 2 + self.longueur_case) // 2
                 cy = (case.y * 2 + self.longueur_case) // 2
 
-                if not jeton.est_capture and jeton.est_cache:
+                if not jeton.est_capture and jeton.est_cache and jeton != None :
 
                     remplissage1 = "white"
                     remplissage2 = str(jeton)
+
 
                     fltk.cercle(cx, cy, 20, remplissage=remplissage1)
                     fltk.cercle(cx, cy, 10, remplissage=remplissage2)
@@ -59,6 +60,7 @@ class Plateau:
                 elif not jeton.est_capture and not jeton.est_cache:
 
                     remplissage = str(jeton)
+
                     fltk.cercle(cx, cy, 20, remplissage=remplissage)
 
                 elif jeton.est_capture and not jeton.est_cache:
@@ -72,6 +74,7 @@ class Plateau:
 
         self.affichage_case()
         self.affichage_jeton()
+        self.affichage_sauvegarde()
 
         while True:
 
@@ -79,55 +82,64 @@ class Plateau:
             tev = fltk.type_ev(ev)
 
             if tev == "ClicGauche":
-                
-                cases = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
-                if cases == 0:
-                    continue
-                ligne_case, colonne_case = cases
 
-                case_selectionner = self.plateau[colonne_case][ligne_case]
+                if (fltk.abscisse(ev) >= self.largeur_plateau - 180 and fltk.abscisse(ev) <= self.largeur_plateau
+                        and fltk.ordonnee(ev) >= 0 and fltk.ordonnee(ev) <= 50) :
 
-                if case_selectionner.jeton is not None and not case_selectionner.jeton.est_cache and not case_selectionner.jeton.est_capture:
+                    if len(self.liste_joueurs) == 0 :
 
-                    case_selectionner.jeton.capturer()
-
-                    case_selectionner.jeton.retourner()
-
-                    self.get_voisins(colonne_case, ligne_case)
-
-                    for i in range(len(self.logique_score_ratelier.ratelier.jetons)):
-
-                        fltk.efface("jeton_" + str(i))
-
-                    if len(self.liste_joueurs) == 0:
-
-                        self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+                        logique.enregistrer("test1.scores", self.plateau, self.logique_score_ratelier.ratelier, False,
+                                            self.logique_score_ratelier.nb_points)
 
                     else :
 
-                        tour = self.tour_joueur()
+                        logique.enregistrer("test1.scores", self.plateau, self.logique_score_ratelier.ratelier, True,
+                                            self.logique_score_ratelier.nb_points, self.tour, self.liste_joueurs[0].score, self.liste_joueurs[1].score)
 
-                        self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+                ligne_case, colonne_case = self.action_joueur(fltk.abscisse(ev), fltk.ordonnee(ev))
 
-                        self.liste_joueurs[tour].ajouter_points(self.logique_score_ratelier.nb_points)
+                if ligne_case != None :
 
-                        self.logique_score_ratelier.nb_points = 0
+                    case_selectionner = self.plateau[colonne_case][ligne_case]
 
-                    self.affichage_ratelier()
+                    if case_selectionner.jeton is not None and not case_selectionner.jeton.est_cache and not case_selectionner.jeton.est_capture:
 
-                    fltk.efface("score")
+                        case_selectionner.jeton.capturer()
 
-                    fltk.efface("joueur")
+                        case_selectionner.jeton.retourner()
 
-                    self.affichage_score()
+                        self.get_voisins(colonne_case, ligne_case)
+
+                        for i in range(len(self.logique_score_ratelier.ratelier.jetons)):
+
+                            fltk.efface("jeton_" + str(i))
+
+                        if len(self.liste_joueurs) == 0:
+
+                            self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+
+                        else :
+
+                            tour = self.tour_joueur()
+
+                            self.logique_score_ratelier.modifier_ratelier(case_selectionner.jeton)
+
+                            self.liste_joueurs[tour].ajouter_points(self.logique_score_ratelier.nb_points)
+
+                            self.logique_score_ratelier.nb_points = 0
+
+                        self.affichage_ratelier()
+
+                        fltk.efface("score")
+
+                        fltk.efface("joueur")
+
+                        self.affichage_score()
 
                 self.affichage_jeton()
 
-            elif tev == 'Quitte':  # on sort de la boucle
+            elif tev == 'Quitte' or self.logique_score_ratelier.fin_de_partie:  # on sort de la boucle
                 break
-
-            else:  # dans les autres cas, on ne fait rien
-                pass
 
             fltk.mise_a_jour()
 
@@ -160,7 +172,7 @@ class Plateau:
 
         if click_x > self.plateau[9][7].x + self.longueur_case or click_y > self.plateau[9][7].y + self.longueur_case:
 
-            return 0
+            return None, None
 
         else:
 
@@ -184,7 +196,6 @@ class Plateau:
         y = 0
 
         liste_jeton_graphique = []
-
 
         for i in range(len(self.logique_score_ratelier.ratelier.jetons)):
             cx = (x * 2 + self.longueur_case) // 2
@@ -250,11 +261,11 @@ class Plateau:
 
         for i in range(2):
 
-            self.liste_joueurs.append(player.Joueur("joueur_" + str(i + 1)))
+            self.liste_joueurs.append(joueur.Joueur("joueur_" + str(i + 1)))
 
     def tour_joueur(self):
 
-        if self.tour == 1:
+        if self.tour % 2 == 1:
 
             self.tour = 0
 
@@ -265,4 +276,10 @@ class Plateau:
             self.tour = 1
 
             return self.tour
+
+    def affichage_sauvegarde(self):
+
+        fltk.rectangle(self.largeur_plateau - 180, 0, self.largeur_plateau, 50)
+
+        fltk.texte(self.largeur_plateau - 170, 15, "Sauvegarder", taille = 18)
 
