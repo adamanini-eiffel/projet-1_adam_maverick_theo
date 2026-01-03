@@ -1,15 +1,18 @@
-from initialisation_jeu import creation_jeu
-import ecran_accueil
+import initialisation_jeu
 import ecran_fin
-from logique import enregistrer
+from ecran_accueil import Accueil
 
-def picktok():
+premiere_partie = initialisation_jeu.creation_jeu()
+
+def picktok(partie = None):
 
     statue_partie = "aucune partie en en cours"
 
-    accueil = ecran_accueil.Accueil()
+    accueil = Accueil()
 
-    while statue_partie ==  "aucune partie en en cours" :
+    relance = False
+
+    while statue_partie ==  "aucune partie en en cours" : 
 
         accueil.affichage()
 
@@ -17,18 +20,25 @@ def picktok():
 
             statue_partie = "partie en cours"
 
-    partie = creation_jeu()
+    if accueil.charger_partie:
+
+        partie = initialisation_jeu.charger_la_partie()
+
+    elif partie == None :
+
+        partie = initialisation_jeu.creation_jeu()
+
+    if accueil.mode == "multi" and not accueil.charger_partie :
+
+        partie.multijoueur()
+
+    accueil.charger_partie = not accueil.charger_partie
 
     while statue_partie == "partie en cours":
-
-        if accueil.mode == "multi" :
-
-            partie.multijoueur()
 
         partie.deroulement_partie()
 
         statue_partie = "fin de partie"
-        enregistrer("test1.scores", partie.plateau, partie.logique_score_ratelier.ratelier, False, None)
 
     score = partie.logique_score_ratelier.nb_points
 
@@ -40,12 +50,20 @@ def picktok():
 
             fin.affichage_multi(partie.liste_joueurs)
 
+            relance = not fin.relancer_partie
+
+            break
+
         else:
 
             fin.affichage_solo(score)
 
-        break
+            relance = not fin.relancer_partie
 
-picktok()
+            break
 
+    if fin.relancer_partie :
 
+        return picktok()
+
+picktok(premiere_partie)
