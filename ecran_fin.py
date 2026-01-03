@@ -15,12 +15,16 @@ class Game_over():
 
         fltk.texte(500, 350, "Score : " + str(score), ancrage='center', police="monsterrat")
 
-        fltk.texte(500, 900, "Revenir à l'écran d'accueil", ancrage='center', police="monsterrat")
+        fltk.texte(500, 800, "Revenir à l'écran d'accueil", ancrage='center', police="monsterrat")
 
         while True:
 
             ev = fltk.donne_ev()
             tev = fltk.type_ev(ev)
+
+            if tev == "ClicGauche" and self.click_ecran_accueil(fltk.abscisse(ev), fltk.ordonnee(ev)) :
+
+                break
 
             if tev == 'Quitte':
                 break
@@ -57,6 +61,10 @@ class Game_over():
             ev = fltk.donne_ev()
             tev = fltk.type_ev(ev)
 
+            if tev == "ClicGauche" and self.click_ecran_accueil(fltk.abscisse(ev), fltk.ordonnee(ev)) :
+
+                break
+
             if tev == 'Quitte':
                 break
 
@@ -66,4 +74,13 @@ class Game_over():
             fltk.mise_a_jour()
 
         fltk.ferme_fenetre()
+
+    def click_ecran_accueil(self, x, y):
+
+        if x > 300 and x < 700 and y > 775 and y < 825:
+
+            self.relancer_partie = True
+
+            return True
+
 
