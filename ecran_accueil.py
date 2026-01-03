@@ -1,4 +1,5 @@
 import fltk
+import math
 
 class Accueil:
 
@@ -7,7 +8,9 @@ class Accueil:
         # Permet de savoir si l'utilisateur est encore sur l'écran d'accueil du jeu
         self.statue = True
 
-        self.mode = "solo"
+        self.mode = None
+
+        self.charger_partie = False
 
     def affichage(self):
 
@@ -22,25 +25,35 @@ class Accueil:
 
             if tev == "ClicGauche":
 
-                if fltk.abscisse(ev) >= 1000 * 1/ 3 - 70 and fltk.abscisse(ev) <= 1000 * 1/ 3 + 70 and fltk.ordonnee(ev) >= 530 and fltk.ordonnee(ev) <= 670:
+                if self.clic_dans_cercle(fltk.abscisse(ev), fltk.ordonnee(ev), (1000 * 1/ 3,600), 70):
 
                     self.statue = False
 
+                    self.mode = "solo"
+
                     break
 
-                if fltk.abscisse(ev) >= 1000 * 2/ 3 - 70 and fltk.abscisse(ev) <= 1000 * 2/ 3 + 70 and fltk.ordonnee(ev) >= 530 and fltk.ordonnee(ev) <= 670:
+                if self.clic_dans_cercle(fltk.abscisse(ev), fltk.ordonnee(ev), (1000 * 2 / 3, 600), 70):
 
                     self.statue = False
 
                     self.mode = "multi"
 
                     break
-            else:
-                pass
+
+                if self.clic_dans_cercle(fltk.abscisse(ev), fltk.ordonnee(ev), (1000 / 2, 775), 70) :
+
+                    self.charger_partie = True
+
+                    self.statue = False
+
+                    break
+
 
             fltk.mise_a_jour()
 
         if not self.statue:
+
             fltk.ferme_fenetre()
 
     def creation(self):
@@ -56,8 +69,15 @@ class Accueil:
         fltk.cercle(1000 * 2 / 3, 600, 70, epaisseur = 5)
 
 
-        fltk.texte(1000 * 1/ 3, 760, "Score",taille = 20, ancrage='center', police = "monsterrat")
 
-        fltk.texte(1000 * 1 / 3, 785, "All Time", taille=20, ancrage='center', police="monsterrat")
+        fltk.texte(1000 / 2, 760, "Charger", taille=20, ancrage='center', police="monsterrat")
+        fltk.texte(1000 / 2, 785, "Partie", taille=20, ancrage='center', police="monsterrat")
+        fltk.cercle(1000 / 2, 775, 70, epaisseur = 5)
 
-        fltk.cercle(1000 * 1 / 3, 775, 70, epaisseur = 5)
+    def clic_dans_cercle(self,x_clic, y_clic, centre, rayon):
+
+        x_centre, y_centre = centre
+
+        distance = math.sqrt((x_clic - x_centre) ** 2 + (y_clic - y_centre) ** 2)
+
+        return distance <= rayon
